@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบแจ้งซ่อม</title>
+    <title>Online-Ticket</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -114,293 +114,29 @@
             <div class="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between text-center sm:text-left">
                 <div class="flex items-center mb-2 sm:mb-0">
                     <img src="https://img5.pic.in.th/file/secure-sv1/Safety-logo-PNG.th.png" alt="logo" class="h-10 sm:h-12 mr-3 sm:mr-4">
-                    <h1 class="text-xl md:text-2xl lg:text-3xl font-bold">ระบบแจ้งซ่อมภายในบริษัทฯ</h1>
+                    <h1 class="text-xl md:text-2xl lg:text-3xl font-bold">แบบฟร์มออนไลน์</h1>
                 </div>
                 <div id="datetime" class="text-sm md:text-base"></div>
             </div>
         </header>
 
         <main class="container mx-auto px-4 py-8 flex-grow">
-            <div class="mb-8 text-center">
-                <button id="new-report-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition duration-300 shadow-md text-lg"><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;
-                    แจ้งซ่อมใหม่
-                </button>
-            </div>
-
-            <div id="new-report-form" class="bg-white rounded-lg shadow-lg p-6 mb-8 hidden">
-                <h2 class="text-center text-xl font-semibold mb-4 text-sky-800"><i class="fa-solid fa-screwdriver-wrench"></i>&nbsp;&nbsp;แบบฟอร์มแจ้งซ่อมรถ/ เครื่องจักรที่ใช้งานในบริษัทฯ</h2>
-
-            <label class="block text-gray-700 font-medium mb-2">ข้อมูลผู้แจ้ง</label>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-6 w-full px-4 py-2 border rounded-lg">                
-                    <div>
-                        <label for="empid" class="block text-gray-700 font-medium mb-2">รหัสพนักงาน</label>
-                        <input id="empid" name="empid" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="รหัสพนักงาน">
-                    </div>
-                    <div>
-                        <label for="name" class="block text-gray-700 font-medium mb-2">ชื่อ - นามสกุล</label>
-                        <input id="name" name="name" type="text"  class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="ชื่อ-สกุลผู้แจ้ง">
-                    </div>
-                    <div>
-                        <label for="department" class="block text-gray-700 font-medium mb-2">แผนก/ฝ่ายของผู้แจ้ง</label>
-                        <select id="department" name="department" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
-                            <option value="">-- กรุณาเลือกแผนก/ฝ่าย --</option>
-                            <option value="Mechanic">ช่าง</option>
-                            <option value="Sales">ขาย</option>
-                            <option value="Account">บัญชี</option>
-                            <option value="Purchasing">จัดซื้อ</option>
-                            <option value="Transport">ขนส่ง</option>
-                        </select>
-                    </div>
-                    <div>
-                        <input type="text" id="status" name="status" class="hidden" value="ยังไม่รับเรื่อง">
-                    </div>
-                </div>
-
-                <label class="block text-gray-700 font-medium mb-2">ข้อมูลรถ/เครื่องจักร</label>
-                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-6 w-full px-4 py-2 border rounded-lg">
-                    <div>
-                        <label for="classroom" class="block text-gray-700 font-medium mb-2">รถ/เครื่องจักรของสาขา</label>
-                        <select id="classroom" name="classroom" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
-                            <option value="">-- กรุณาเลือกสาขา --</option>
-                            <option value="ลาดกระบัง">ลาดกระบัง</option>
-                            <option value="ชลบุรี">ชลบุรี</option>
-                            <option value="แหลมฉบัง">แหลมฉบัง</option>
-                            <option value="ระยอง">ระยอง</option>
-                            <option value="เชียงใหม่">เชียงใหม่</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="mctype" class="block text-gray-700 font-medium mb-2">ประเภท</label>
-                        <select id="mctype" name="mctype" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
-                            <option value="">-- เลือกประเภท --</option>
-                            <option value="Sedan">รถเก๋ง</option>
-                            <option value="Pick-up">กระบะ</option>
-                            <option value="6-Wheel">6 ล้อ</option>
-                            <option value="12-Wheel">12 ล้อ</option>
-                            <option value="Trailer">รถหัวลาก</option>
-                            <option value="Forklift">รถยก</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="meter" class="block text-gray-700 font-medium mb-2">เลขมิเตอร์</label>
-                        <input id="meter" name="meter" type="number" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="ตัวเลขเท่านั้น">
-                    </div>
-
-                    <div>
-                        <label for="unit" class="block text-gray-700 font-medium mb-2">หน่วยนับมิเตอร์</label>
-                        <select id="unit" name="unit" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
-                            <option value="">-- เลือกหน่วยนับ --</option>
-                            <option value="Km.">กิโลเมตร</option>
-                            <option value="Hr.">ชั่วโมง</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="brand" class="block text-gray-700 font-medium mb-2">รุ่น</label>
-                        <select id="brand" name="brand" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
-                            <option value="">-- เลือกรุ่น --</option>
-                            <option value="ISUZU">ISUZU</option>
-                            <option value="NISSAN">NISSAN</option>
-                            <option value="TOYOTA">TOYOTA</option>
-                            <option value="HINO">HINO</option>
-                            <option value="HONDA">HONDA</option>
-                            <option value="MAZDA">MAZDA</option>
-                            <option value="ENFORCER">ENFORCER</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="idtype" class="block text-gray-700 font-medium mb-2">เลขประจำรถ</label>
-                        <select id="idtype" name="idtype" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
-                            <option value="">-- เลือกประเภท --</option>
-                            <option value="Serail number">เลขซีเรียล</option>
-                            <option value="Lisence Plate">เลขทะเบียน</option>
-                        </select>
-                    </div>
-                    <div>
-                    <label for="option" class="block text-gray-700 font-medium mb-2">เลขประจำรถ</label>
-                    <input class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500" list="datalistOptions" name="listOption" placeholder="พิมพ์คำค้นหา..." required>
-                    <datalist id="datalistOptions">
-                      <option value="3กษ1837"></option>
-                      <option value="5ขผ4798"></option>
-                      <option value="5กฬ5582"></option>
-                      <option value="8กข6643"></option>
-                      <option value="2กร3061"></option>
-                      <option value="3ฒฎ6110"></option>
-                      <option value="2ขฒ3272"></option>
-                      <option value="63-6849"></option>
-                      <option value="63-6850"></option>
-                      <option value="69-1355"></option>
-                      <option value="63-7908"></option>
-                      <option value="1ฒภ4923"></option>
-                      <option value="1ฒภ4924"></option>
-                      <option value="1ฒภ4926"></option>
-                      <option value="2ฒก8930"></option>
-                      <option value="2ฒก8934"></option>
-                      <option value="2ฒก8935"></option>
-                      <option value="2ฒก8927"></option>
-                      <option value="2ฒณ1831"></option>
-                      <option value="2ฒณ1829"></option>
-                      <option value="2ฒณ1833"></option>
-                      <option value="2ฒถ9218"></option>
-                      <option value="2ฒถ9245"></option>
-                      <option value="2ฒถ9289"></option>
-                      <option value="2ฒอ1827"></option>
-                      <option value="2ฒอ1830"></option>
-                      <option value="2ฒอ1831"></option>
-                      <option value="ฒผ3095"></option>
-                      <option value="3ฒฉ4367"></option>
-                      <option value="3ฒฉ4368"></option>
-                      <option value="3ฒฉ4369"></option>
-                      <option value="3ฒท506"></option>
-                      <option value="3ฒท510"></option>
-                      <option value="3ฒท511"></option>
-                      <option value="68-8094"></option>
-                      <option value="68-8095"></option>
-                      <option value="3ฒศ2198"></option>
-                      <option value="3ฒศ2217"></option>
-                      <option value="3ฒศ2249"></option>
-                      <option value="2ฒศ168"></option>
-                      <option value="4ฒง6416"></option>
-                      <option value="4ฒง6409"></option>
-                    </datalist>
-                </div>
-                </div>
-
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">อัพโหลดภาพที่ 1</label>
-                        <div class="relative h-48 rounded-lg overflow-hidden border-2 border-dashed border-sky-400">
-                            <div id="upload-area-1" class="absolute inset-0 flex flex-col items-center justify-center cursor-pointer bg-white transition-all duration-300 hover:bg-sky-50">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-sky-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <p class="text-gray-500">คลิกเพื่ออัพโหลดภาพ</p>
-                            </div>
-                            <div id="preview-1" class="absolute inset-0 hidden">
-                                <img id="preview-img-1" class="w-full h-full object-cover rounded-lg cursor-pointer" src="" alt="ภาพตัวอย่าง 1">
-                            </div>
-                            <input type="file" id="photo-upload-1" class="hidden" accept="image/*">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">อัพโหลดภาพที่ 2</label>
-                        <div class="relative h-48 rounded-lg overflow-hidden border-2 border-dashed border-sky-400">
-                            <div id="upload-area-2" class="absolute inset-0 flex flex-col items-center justify-center cursor-pointer bg-white transition-all duration-300 hover:bg-sky-50">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-sky-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <p class="text-gray-500">คลิกเพื่ออัพโหลดภาพ</p>
-                            </div>
-                            <div id="preview-2" class="absolute inset-0 hidden">
-                                <img id="preview-img-2" class="w-full h-full object-cover rounded-lg cursor-pointer" src="" alt="ภาพตัวอย่าง 2">
-                            </div>
-                            <input type="file" id="photo-upload-2" class="hidden" accept="image/*">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <label for="notes" class="block text-gray-700 font-medium mb-2">รายละเอียด</label>
-                    <textarea id="notes" name="notes" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="กรอกรายละเอียด/ความเสียหาย"></textarea>
-                </div>
-
-                <div class="text-center">
-                    <button id="submit-btn" class="bg-sky-600 hover:bg-sky-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300 shadow-md">
-                        บันทึก
-                    </button>
-                    &nbsp;&nbsp;
-                    <button id="cancel-report-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-6 rounded-lg transition duration-300 shadow-md">
-                        ยกเลิก
-                    </button>
-                </div>
-            </div>
-
             <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <h2 class="text-xl font-semibold mb-4 flex flex-col items-center justify-center text-sky-800">สรุปจำนวนการแจ้งซ่อมตามสถานะ</h2>
+                <h2 class="text-xl font-semibold mb-4 flex flex-col items-center justify-center text-sky-800">กดเลือกที่ปุ่มด้านล่างเลยครับ</h2>
                 <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-6" id="status-summary-cards">
                     <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-blue-50 text-blue-700 status-card" data-status="">
-                        <div class="text-5xl font-bold" id="status-ทั้งหมด-count">0</div>
-                        <div class="text-sm font-medium">แจ้งซ่อมทั้งหมด</div>
+                        <div class="text-5xl font-bold" id="status-ทั้งหมด-count">เบิกยา</div>
+                        <div class="text-sm font-medium"></div>
                     </div>
-                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-red-50 text-red-700 status-card" data-status="ยังไม่รับเรื่อง">
-                        <div class="text-5xl font-bold" id="status-ยังไม่รับเรื่อง-count">0</div>
-                        <div class="text-sm font-medium">ยังไม่รับเรื่อง</div>
+                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-blue-50 text-blue-700 status-card" data-status="">
+                        <div class="text-5xl font-bold" id="status-ทั้งหมด-count">แจ้งซ่อม<br>ทั่วไป</div>
+                        <div class="text-sm font-medium"></div>
                     </div>
-                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-orange-50 text-orange-700 status-card" data-status="กำลังดำเนินการ">
-                        <div class="text-5xl font-bold" id="status-กำลังดำเนินการ-count">0</div>
-                        <div class="text-sm font-medium">กำลังดำเนินการ</div>
-                    </div>
-                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-sky-50 text-sky-700 status-card" data-status="เสร็จสิ้น">
-                        <div class="text-5xl font-bold" id="status-เสร็จสิ้น-count">0</div>
-                        <div class="text-sm font-medium">เสร็จสิ้น</div>
-                    </div>
-                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-gray-50 text-gray-700 status-card" data-status="ยกเลิก">
-                        <div class="text-5xl font-bold" id="status-ยกเลิก-count">0</div>
-                        <div class="text-sm font-medium">ยกเลิก</div>
+                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-blue-50 text-blue-700 status-card" data-status="">
+                        <div class="text-5xl font-bold" id="status-ทั้งหมด-count">แจ้งซ่อม<br>รถบริษัท</div>
+                        <div class="text-sm font-medium"></div>
                     </div>
                 </div>
-            </div>
-
-
-            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-                    <div>
-                        <label for="filter-status" class="block text-gray-700 font-medium mb-2">สถานะ</label>
-                        <select id="filter-status" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
-                            <option value="">ทั้งหมด</option>
-                            <option value="ยังไม่รับเรื่อง">ยังไม่รับเรื่อง</option>
-                            <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
-                            <option value="เสร็จสิ้น">เสร็จสิ้น</option>
-                            <option value="ยกเลิก">ยกเลิก</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="filter-classroom" class="block text-gray-700 font-medium mb-2">สาขา</label>
-                        <select id="filter-classroom" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
-                            <option value="">ทั้งหมด</option>
-                            <option value="ลาดกระบัง">ลาดกระบัง</option>
-                            <option value="ชลบุรี">ชลบุรี</option>
-                            <option value="แหลมฉบัง">แหลมฉบัง</option>
-                            <option value="ระยอง">ระยอง</option>
-                            <option value="เชียงใหม่">เชียงใหม่</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="filter-start-date" class="block text-gray-700 font-medium mb-2">จากวันที่</label>
-                        <input type="date" id="filter-start-date" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
-                    </div>
-                    <div>
-                        <label for="filter-end-date" class="block text-gray-700 font-medium mb-2">ถึงวันที่</label>
-                        <input type="date" id="filter-end-date" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
-                    </div>
-                    <div class="col-span-full sm:col-span-2 lg:col-start-5 lg:col-span-2 flex gap-2 justify-center">
-                        <button id="filter-btn" class="w-full sm:w-auto bg-sky-600 hover:bg-sky-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 shadow-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01.293.707l-6.414 6.414a1 1 0 00-.293.707V19l-4 4v-6.586a1 1 0 00-.293-.707L3.707 7.293A1 1 0 013 6.586V4z" />
-                            </svg>
-                            ค้นหา
-                        </button>
-                        <button id="reset-filter-btn" class="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-lg transition duration-300 shadow-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            รีเซ็ต
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <h2 class="text-xl md:text-2xl font-bold mb-6 text-Sky-800">ข้อมูลการแจ้งซ่อม</h2>
-
-            <div id="photo-list" class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            </div>
-
-            <div id="pagination-controls" class="flex justify-center items-center space-x-2 mt-8">
-            </div>
         </main>
 
         <footer class="bg-sky-800 text-white py-4">
@@ -410,27 +146,7 @@
             </div>
         </footer>
     </div>
-<div id="photo-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-lg max-w-sm sm:max-w-md md:max-w-lg lg:max-w-4xl w-full mx-4 modal-content-scroll">
-        <div class="p-4 gap-4 bg-sky-700 text-white flex justify-between items-center">
-            <h3 id="modal-title" class="text-lg sm:text-xl font-semibold"></h3>
-            <button id="close-modal" class="justify-center text-white hover:text-gray-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-              </button>
-        </div>
-        <div class="p-4 sm:p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <img id="modal-img-1" class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg" src="" alt="ภาพที่ 1">
-                </div>
-                <div>
-                    <img id="modal-img-2" class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg" src="" alt="ภาพที่ 2">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div class="w-full px-4 py-2 border rounded-lg">
                     <div class="grid grid-cols-2 flex items-baseline">
                         <h4 class="font-semibold text-gray-700 mr-1 whitespace-nowrap">สถานะปัจจุบัน:</h4>
