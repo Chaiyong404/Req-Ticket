@@ -124,22 +124,31 @@
             <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
                 <h2 class="text-xl font-semibold mb-4 flex flex-col items-center justify-center text-sky-800">กดเลือกที่ปุ่มด้านล่างเลยครับ</h2>
                 <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 flex-col items-center justify-center gap-6" id="status-summary-cards">
-                    <a href="https://chaiyong404.github.io/MedReq/"><div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-blue-50 text-blue-700 status-card" data-status=""></a>
+                    <a href="https://chaiyong404.github.io/MedReq/">
+                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-blue-50 text-blue-700 status-card">
                         <div class="text-5xl font-bold" id="status-ทั้งหมด-count">เบิกยา</div>
                         <div class="text-sm font-medium"></div>
-                    </div>
-                    <a href="https://chaiyong404.github.io/TicketBuiding/"><div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-blue-50 text-blue-700 status-card" data-status=""></a>
-                        <div class="text-2xl font-bold" id="status-ทั้งหมด-count">แจ้งซ่อม</div>
-                        <div class="text-5xl font-bold" id="status-ทั้งหมด-count">ทั่วไป</div>
+                    </div></a>
+                    <a href="https://chaiyong404.github.io/TicketBuiding/">
+                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-blue-50 text-blue-700 status-card">
+                        <div class="text-2xl font-bold">แจ้งซ่อม</div>
+                        <div class="text-5xl font-bold">ทั่วไป</div>
                         <div class="text-sm font-medium"></div>
-                    </div>
-                    <a href="https://chaiyong404.github.io/TicketVMC/"><div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-blue-50 text-blue-700 status-card" data-status=""></a>
-                        <div class="text-2xl font-bold" id="status-ทั้งหมด-count">แจ้งซ่อม</div>
-                        <div class="text-5xl font-bold " id="status-ทั้งหมด-count">รถบริษัท</div>
+                    </div></a>
+                    <a href="https://chaiyong404.github.io/TicketVMC/">
+                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-blue-50 text-blue-700 status-card">
+                        <div class="text-2xl font-bold">แจ้งซ่อม</div>
+                        <div class="text-5xl font-bold">รถบริษัท</div>
                         <div class="text-sm font-medium"></div>
-                    </div>
+                    </div></a>
+                    <a href="https://chaiyong404.github.io/TicketIT/">
+                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-blue-50 text-blue-700 status-card">
+                        <div class="text-2xl font-bold">แจ้งซ่อม</div>
+                        <div class="text-5xl font-bold">ไอที</div>
+                        <div class="text-sm font-medium"></div>
+                    </div></a>
                 </div>
-        </main>
+            </main>
 
         <footer class="bg-sky-800 text-white py-4">
             <div class="container mx-auto px-4 text-center">
@@ -148,7 +157,6 @@
             </div>
         </footer>
     </div>
-              
         </div>
     </div>
 </div>
@@ -173,6 +181,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const statusCards = document.querySelectorAll('.status-card'); // Select all status cards
 
+        }); // Closing tag for DOMContentLoaded listener
     </script>
 </body>
 </html>
