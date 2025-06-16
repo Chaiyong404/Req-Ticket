@@ -13,85 +13,6 @@
             font-family: 'Sarabun', sans-serif;
             background-color: #E2FBFB;
         }
-        body.no-scroll {
-            overflow: hidden;
-        }
-        .upload-area {
-            border: 2px dashed #34d399;
-            transition: all 0.3s ease;
-        }
-
-        .upload-area:hover {
-            border-color: #059669;
-            background-color: #d1fae5;
-        }
-
-        .photo-card {
-            transition: transform 0.3s ease;
-        }
-
-        .photo-card:hover {
-            transform: translateY(-5px);
-        }
-
-        /* Ensure modal content scrolls on small screens if it overflows */
-        .modal-content-scroll {
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        /* --- Custom Status Colors --- */
-        .status-tag {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px; /* Pill shape */
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-align: center;
-            display: inline-block;
-        }
-
-        .status-ยังไม่รับเรื่อง {
-            background-color: #fef2f2;
-            color: #ef4444;
-        }
-
-        .status-กำลังดำเนินการ {
-            background-color: #fffbeb;
-            color: #f59e0b;
-        }
-
-        .status-เสร็จสิ้น {
-            background-color: #f0fdf4;
-            color: #22c55e;
-        }
-
-        .status-ยกเลิก {
-            background-color: #f3f4f6;
-            color: #6b7280;
-        }
-
-        .pagination-btn {
-          display: inline-block;
-        }
-
-        .pagination-btn {
-          color: black;
-          float: left;
-          padding: 8px 16px;
-          text-decoration: none;
-        }
-
-        .pagination-btn.active {
-          background-color: #4CAF50;
-          color: white;
-          border-radius: 5px;
-        }
-
-        .pagination-btn:disabled(.active) {
-          background-color: #ddd;
-          border-radius: 5px;
-        }
-
         /* Added for clickable status cards */
         .status-card {
             cursor: pointer;
@@ -100,11 +21,6 @@
         .status-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Make preview images clickable */
-        #preview-img-1, #preview-img-2 {
-            cursor: pointer;
         }
     </style>
 </head>
@@ -126,26 +42,21 @@
                 <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 flex-col items-center justify-center gap-6" id="status-summary-cards">
                     <a href="https://chaiyong404.github.io/MedReq/">
                     <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-blue-50 text-blue-700 status-card">
-                        <div class="text-5xl font-bold" id="status-ทั้งหมด-count">เบิกยา</div>
+                        <div class="text-sm font-medium"></div>
+                        <div class="text-4xl font-bold">เบิกยา</div>
                         <div class="text-sm font-medium"></div>
                     </div></a>
                     <a href="https://chaiyong404.github.io/TicketBuiding/">
                     <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-blue-50 text-blue-700 status-card">
                         <div class="text-2xl font-bold">แจ้งซ่อม</div>
-                        <div class="text-5xl font-bold">ทั่วไป</div>
+                        <div class="text-4xl font-bold">ทั่วไป</div>
                         <div class="text-sm font-medium"></div>
                     </div></a>
-                    <a href="https://chaiyong404.github.io/TicketVMC/">
+                    <!-- <a href="https://chaiyong404.github.io/TicketVMC/"> -->
                     <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-blue-50 text-blue-700 status-card">
                         <div class="text-2xl font-bold">แจ้งซ่อม</div>
-                        <div class="text-5xl font-bold">รถบริษัท</div>
-                        <div class="text-sm font-medium"></div>
-                    </div></a>
-                    <a href="https://chaiyong404.github.io/TicketIT/">
-                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-blue-50 text-blue-700 status-card">
-                        <div class="text-2xl font-bold">แจ้งซ่อม</div>
-                        <div class="text-5xl font-bold">ไอที</div>
-                        <div class="text-sm font-medium"></div>
+                        <div class="text-4xl font-bold">รถบริษัท</div>
+                        <div class="text-sm font-medium">กำลังพัฒนา</div>
                     </div></a>
                 </div>
             </main>
@@ -153,13 +64,11 @@
         <footer class="bg-sky-800 text-white py-4">
             <div class="container mx-auto px-4 text-center">
                 <p>แจ้งซ่อมนี้ใช้สำหรับงานอาคารสถานที่, รถยนต์, รถบรรทุก, อุปกรณ์ ของบริษัทฯ เท่านั้น</p>
-                <p>พบปัญหาการใช้งานกรุณาติดต่อ: ชัยยงค์ กุคำจัด <a href="tel:0991166770" class="underline hover:text-sky-300">099 116 6770</a></p>
+                <p>พบปัญหาการใช้งานกรุณาติดต่อ: ชัยยงค์ กุคำจัด<br>
+                <a href="tel:0991166770" class="underline hover:text-sky-300">099 116 6770</a></p>
             </div>
         </footer>
     </div>
-        </div>
-    </div>
-</div>
     <script>
         // Update date and time
         function updateDateTime() {
@@ -177,11 +86,6 @@
         }
         setInterval(updateDateTime, 1000);
         updateDateTime();
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const statusCards = document.querySelectorAll('.status-card'); // Select all status cards
-
-        }); // Closing tag for DOMContentLoaded listener
     </script>
 </body>
 </html>
