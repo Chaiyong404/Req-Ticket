@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบแจ้งซ่อม</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #E2FBFB;
+        }
+        body.no-scroll {
+            overflow: hidden;
+        }
+        .upload-area {
+            border: 2px dashed #34d399;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #059669;
+            background-color: #d1fae5;
+        }
+
+        .photo-card {
+            transition: transform 0.3s ease;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Ensure modal content scrolls on small screens if it overflows */
+        .modal-content-scroll {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* --- Custom Status Colors --- */
+        .status-tag {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px; /* Pill shape */
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .status-ยังไม่รับเรื่อง {
+            background-color: #fef2f2;
+            color: #ef4444;
+        }
+
+        .status-กำลังดำเนินการ {
+            background-color: #fffbeb;
+            color: #f59e0b;
+        }
+
+        .status-เสร็จสิ้น {
+            background-color: #f0fdf4;
+            color: #22c55e;
+        }
+
+        .status-ยกเลิก {
+            background-color: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .pagination-btn {
+          display: inline-block;
+        }
+
+        .pagination-btn {
+          color: black;
+          float: left;
+          padding: 8px 16px;
+          text-decoration: none;
+        }
+
+        .pagination-btn.active {
+          background-color: #4CAF50;
+          color: white;
+          border-radius: 5px;
+        }
+
+        .pagination-btn:disabled(.active) {
+          background-color: #ddd;
+          border-radius: 5px;
+        }
+
+        /* Added for clickable status cards */
+        .status-card {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .status-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Make preview images clickable */
+        #preview-img-1, #preview-img-2 {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+        <header class="bg-sky-600 text-white py-4 shadow-lg">
+            <div class="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between text-center sm:text-left">
+                <div class="flex items-center mb-2 sm:mb-0">
+                    <img src="https://img5.pic.in.th/file/secure-sv1/Safety-logo-PNG.th.png" alt="logo" class="h-10 sm:h-12 mr-3 sm:mr-4">
+                    <h1 class="text-xl md:text-2xl lg:text-3xl font-bold">ระบบแจ้งซ่อมภายในบริษัทฯ</h1>
+                </div>
+                <div id="datetime" class="text-sm md:text-base"></div>
+            </div>
+        </header>
+
+        <main class="container mx-auto px-4 py-8 flex-grow">
+            <div class="mb-8 text-center">
+                <button id="new-report-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition duration-300 shadow-md text-lg"><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;
+                    แจ้งซ่อมใหม่
+                </button>
+            </div>
+
+            <div id="new-report-form" class="bg-white rounded-lg shadow-lg p-6 mb-8 hidden">
+                <h2 class="text-center text-xl font-semibold mb-4 text-sky-800"><i class="fa-solid fa-screwdriver-wrench"></i>&nbsp;&nbsp;แบบฟอร์มแจ้งซ่อมรถ/ เครื่องจักรที่ใช้งานในบริษัทฯ</h2>
+
+            <label class="block text-gray-700 font-medium mb-2">ข้อมูลผู้แจ้ง</label>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-6 w-full px-4 py-2 border rounded-lg">                
+                    <div>
+                        <label for="empid" class="block text-gray-700 font-medium mb-2">รหัสพนักงาน</label>
+                        <input id="empid" name="empid" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="รหัสพนักงาน">
+                    </div>
+                    <div>
+                        <label for="name" class="block text-gray-700 font-medium mb-2">ชื่อ - นามสกุล</label>
+                        <input id="name" name="name" type="text"  class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="ชื่อ-สกุลผู้แจ้ง">
+                    </div>
+                    <div>
+                        <label for="department" class="block text-gray-700 font-medium mb-2">แผนก/ฝ่ายของผู้แจ้ง</label>
+                        <select id="department" name="department" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <option value="">-- กรุณาเลือกแผนก/ฝ่าย --</option>
+                            <option value="Mechanic">ช่าง</option>
+                            <option value="Sales">ขาย</option>
+                            <option value="Account">บัญชี</option>
+                            <option value="Purchasing">จัดซื้อ</option>
+                            <option value="Transport">ขนส่ง</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="text" id="status" name="status" class="hidden" value="ยังไม่รับเรื่อง">
+                    </div>
+                </div>
+
+                <label class="block text-gray-700 font-medium mb-2">ข้อมูลรถ/เครื่องจักร</label>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-6 w-full px-4 py-2 border rounded-lg">
+                    <div>
+                        <label for="classroom" class="block text-gray-700 font-medium mb-2">รถ/เครื่องจักรของสาขา</label>
+                        <select id="classroom" name="classroom" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <option value="">-- กรุณาเลือกสาขา --</option>
+                            <option value="ลาดกระบัง">ลาดกระบัง</option>
+                            <option value="ชลบุรี">ชลบุรี</option>
+                            <option value="แหลมฉบัง">แหลมฉบัง</option>
+                            <option value="ระยอง">ระยอง</option>
+                            <option value="เชียงใหม่">เชียงใหม่</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="mctype" class="block text-gray-700 font-medium mb-2">ประเภท</label>
+                        <select id="mctype" name="mctype" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <option value="">-- เลือกประเภท --</option>
+                            <option value="Sedan">รถเก๋ง</option>
+                            <option value="Pick-up">กระบะ</option>
+                            <option value="6-Wheel">6 ล้อ</option>
+                            <option value="12-Wheel">12 ล้อ</option>
+                            <option value="Trailer">รถหัวลาก</option>
+                            <option value="Forklift">รถยก</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="meter" class="block text-gray-700 font-medium mb-2">เลขมิเตอร์</label>
+                        <input id="meter" name="meter" type="number" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="ตัวเลขเท่านั้น">
+                    </div>
+
+                    <div>
+                        <label for="unit" class="block text-gray-700 font-medium mb-2">หน่วยนับมิเตอร์</label>
+                        <select id="unit" name="unit" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <option value="">-- เลือกหน่วยนับ --</option>
+                            <option value="Km.">กิโลเมตร</option>
+                            <option value="Hr.">ชั่วโมง</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="brand" class="block text-gray-700 font-medium mb-2">รุ่น</label>
+                        <select id="brand" name="brand" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <option value="">-- เลือกรุ่น --</option>
+                            <option value="ISUZU">ISUZU</option>
+                            <option value="NISSAN">NISSAN</option>
+                            <option value="TOYOTA">TOYOTA</option>
+                            <option value="HINO">HINO</option>
+                            <option value="HONDA">HONDA</option>
+                            <option value="MAZDA">MAZDA</option>
+                            <option value="ENFORCER">ENFORCER</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="idtype" class="block text-gray-700 font-medium mb-2">เลขประจำรถ</label>
+                        <select id="idtype" name="idtype" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <option value="">-- เลือกประเภท --</option>
+                            <option value="Serail number">เลขซีเรียล</option>
+                            <option value="Lisence Plate">เลขทะเบียน</option>
+                        </select>
+                    </div>
+                    <div>
+                    <label for="option" class="block text-gray-700 font-medium mb-2">เลขประจำรถ</label>
+                    <input class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500" list="datalistOptions" name="listOption" placeholder="พิมพ์คำค้นหา..." required>
+                    <datalist id="datalistOptions">
+                      <option value="3กษ1837"></option>
+                      <option value="5ขผ4798"></option>
+                      <option value="5กฬ5582"></option>
+                      <option value="8กข6643"></option>
+                      <option value="2กร3061"></option>
+                      <option value="3ฒฎ6110"></option>
+                      <option value="2ขฒ3272"></option>
+                      <option value="63-6849"></option>
+                      <option value="63-6850"></option>
+                      <option value="69-1355"></option>
+                      <option value="63-7908"></option>
+                      <option value="1ฒภ4923"></option>
+                      <option value="1ฒภ4924"></option>
+                      <option value="1ฒภ4926"></option>
+                      <option value="2ฒก8930"></option>
+                      <option value="2ฒก8934"></option>
+                      <option value="2ฒก8935"></option>
+                      <option value="2ฒก8927"></option>
+                      <option value="2ฒณ1831"></option>
+                      <option value="2ฒณ1829"></option>
+                      <option value="2ฒณ1833"></option>
+                      <option value="2ฒถ9218"></option>
+                      <option value="2ฒถ9245"></option>
+                      <option value="2ฒถ9289"></option>
+                      <option value="2ฒอ1827"></option>
+                      <option value="2ฒอ1830"></option>
+                      <option value="2ฒอ1831"></option>
+                      <option value="ฒผ3095"></option>
+                      <option value="3ฒฉ4367"></option>
+                      <option value="3ฒฉ4368"></option>
+                      <option value="3ฒฉ4369"></option>
+                      <option value="3ฒท506"></option>
+                      <option value="3ฒท510"></option>
+                      <option value="3ฒท511"></option>
+                      <option value="68-8094"></option>
+                      <option value="68-8095"></option>
+                      <option value="3ฒศ2198"></option>
+                      <option value="3ฒศ2217"></option>
+                      <option value="3ฒศ2249"></option>
+                      <option value="2ฒศ168"></option>
+                      <option value="4ฒง6416"></option>
+                      <option value="4ฒง6409"></option>
+                    </datalist>
+                </div>
+                </div>
+
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">อัพโหลดภาพที่ 1</label>
+                        <div class="relative h-48 rounded-lg overflow-hidden border-2 border-dashed border-sky-400">
+                            <div id="upload-area-1" class="absolute inset-0 flex flex-col items-center justify-center cursor-pointer bg-white transition-all duration-300 hover:bg-sky-50">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-sky-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <p class="text-gray-500">คลิกเพื่ออัพโหลดภาพ</p>
+                            </div>
+                            <div id="preview-1" class="absolute inset-0 hidden">
+                                <img id="preview-img-1" class="w-full h-full object-cover rounded-lg cursor-pointer" src="" alt="ภาพตัวอย่าง 1">
+                            </div>
+                            <input type="file" id="photo-upload-1" class="hidden" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">อัพโหลดภาพที่ 2</label>
+                        <div class="relative h-48 rounded-lg overflow-hidden border-2 border-dashed border-sky-400">
+                            <div id="upload-area-2" class="absolute inset-0 flex flex-col items-center justify-center cursor-pointer bg-white transition-all duration-300 hover:bg-sky-50">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-sky-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <p class="text-gray-500">คลิกเพื่ออัพโหลดภาพ</p>
+                            </div>
+                            <div id="preview-2" class="absolute inset-0 hidden">
+                                <img id="preview-img-2" class="w-full h-full object-cover rounded-lg cursor-pointer" src="" alt="ภาพตัวอย่าง 2">
+                            </div>
+                            <input type="file" id="photo-upload-2" class="hidden" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label for="notes" class="block text-gray-700 font-medium mb-2">รายละเอียด</label>
+                    <textarea id="notes" name="notes" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="กรอกรายละเอียด/ความเสียหาย"></textarea>
+                </div>
+
+                <div class="text-center">
+                    <button id="submit-btn" class="bg-sky-600 hover:bg-sky-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300 shadow-md">
+                        บันทึก
+                    </button>
+                    &nbsp;&nbsp;
+                    <button id="cancel-report-btn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-6 rounded-lg transition duration-300 shadow-md">
+                        ยกเลิก
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <h2 class="text-xl font-semibold mb-4 flex flex-col items-center justify-center text-sky-800">สรุปจำนวนการแจ้งซ่อมตามสถานะ</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-6" id="status-summary-cards">
+                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-blue-50 text-blue-700 status-card" data-status="">
+                        <div class="text-5xl font-bold" id="status-ทั้งหมด-count">0</div>
+                        <div class="text-sm font-medium">แจ้งซ่อมทั้งหมด</div>
+                    </div>
+                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-red-50 text-red-700 status-card" data-status="ยังไม่รับเรื่อง">
+                        <div class="text-5xl font-bold" id="status-ยังไม่รับเรื่อง-count">0</div>
+                        <div class="text-sm font-medium">ยังไม่รับเรื่อง</div>
+                    </div>
+                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-orange-50 text-orange-700 status-card" data-status="กำลังดำเนินการ">
+                        <div class="text-5xl font-bold" id="status-กำลังดำเนินการ-count">0</div>
+                        <div class="text-sm font-medium">กำลังดำเนินการ</div>
+                    </div>
+                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-sky-50 text-sky-700 status-card" data-status="เสร็จสิ้น">
+                        <div class="text-5xl font-bold" id="status-เสร็จสิ้น-count">0</div>
+                        <div class="text-sm font-medium">เสร็จสิ้น</div>
+                    </div>
+                    <div class="p-4 rounded-lg shadow-md flex flex-col items-center justify-center bg-gray-50 text-gray-700 status-card" data-status="ยกเลิก">
+                        <div class="text-5xl font-bold" id="status-ยกเลิก-count">0</div>
+                        <div class="text-sm font-medium">ยกเลิก</div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                    <div>
+                        <label for="filter-status" class="block text-gray-700 font-medium mb-2">สถานะ</label>
+                        <select id="filter-status" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <option value="">ทั้งหมด</option>
+                            <option value="ยังไม่รับเรื่อง">ยังไม่รับเรื่อง</option>
+                            <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+                            <option value="เสร็จสิ้น">เสร็จสิ้น</option>
+                            <option value="ยกเลิก">ยกเลิก</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filter-classroom" class="block text-gray-700 font-medium mb-2">สาขา</label>
+                        <select id="filter-classroom" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <option value="">ทั้งหมด</option>
+                            <option value="ลาดกระบัง">ลาดกระบัง</option>
+                            <option value="ชลบุรี">ชลบุรี</option>
+                            <option value="แหลมฉบัง">แหลมฉบัง</option>
+                            <option value="ระยอง">ระยอง</option>
+                            <option value="เชียงใหม่">เชียงใหม่</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="filter-start-date" class="block text-gray-700 font-medium mb-2">จากวันที่</label>
+                        <input type="date" id="filter-start-date" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    </div>
+                    <div>
+                        <label for="filter-end-date" class="block text-gray-700 font-medium mb-2">ถึงวันที่</label>
+                        <input type="date" id="filter-end-date" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    </div>
+                    <div class="col-span-full sm:col-span-2 lg:col-start-5 lg:col-span-2 flex gap-2 justify-center">
+                        <button id="filter-btn" class="w-full sm:w-auto bg-sky-600 hover:bg-sky-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01.293.707l-6.414 6.414a1 1 0 00-.293.707V19l-4 4v-6.586a1 1 0 00-.293-.707L3.707 7.293A1 1 0 013 6.586V4z" />
+                            </svg>
+                            ค้นหา
+                        </button>
+                        <button id="reset-filter-btn" class="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-4 rounded-lg transition duration-300 shadow-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            รีเซ็ต
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <h2 class="text-xl md:text-2xl font-bold mb-6 text-Sky-800">ข้อมูลการแจ้งซ่อม</h2>
+
+            <div id="photo-list" class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            </div>
+
+            <div id="pagination-controls" class="flex justify-center items-center space-x-2 mt-8">
+            </div>
+        </main>
+
+        <footer class="bg-sky-800 text-white py-4">
+            <div class="container mx-auto px-4 text-center">
+                <p>แจ้งซ่อมนี้ใช้สำหรับงานอาคารสถานที่, รถยนต์, รถบรรทุก, อุปกรณ์ ของบริษัทฯ เท่านั้น</p>
+                <p>พบปัญหาการใช้งานกรุณาติดต่อ: ชัยยงค์ กุคำจัด <a href="tel:0991166770" class="underline hover:text-sky-300">099 116 6770</a></p>
+            </div>
+        </footer>
+    </div>
+<div id="photo-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg max-w-sm sm:max-w-md md:max-w-lg lg:max-w-4xl w-full mx-4 modal-content-scroll">
+        <div class="p-4 gap-4 bg-sky-700 text-white flex justify-between items-center">
+            <h3 id="modal-title" class="text-lg sm:text-xl font-semibold"></h3>
+            <button id="close-modal" class="justify-center text-white hover:text-gray-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+              </button>
+        </div>
+        <div class="p-4 sm:p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <img id="modal-img-1" class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg" src="" alt="ภาพที่ 1">
+                </div>
+                <div>
+                    <img id="modal-img-2" class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg" src="" alt="ภาพที่ 2">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="w-full px-4 py-2 border rounded-lg">
+                    <div class="grid grid-cols-2 flex items-baseline">
+                        <h4 class="font-semibold text-gray-700 mr-1 whitespace-nowrap">สถานะปัจจุบัน:</h4>
+                        <span id="modal-status" class="status-tag"></span>
+                    </div>
+                </div>
+                <div class="w-full px-4 py-2 border rounded-lg">
+                    <div class="grid grid-cols-2 flex items-baseline">
+                        <h4 class="font-semibold text-gray-700 mr-1 whitespace-nowrap">สาขา:</h4>
+                        <span id="modal-classroom" class="text-gray-600"></span>
+                    </div>
+                </div>
+                <div class="w-full px-4 py-2 border rounded-lg">
+                    <div class="grid grid-cols-2 flex items-baseline">
+                        <h4 class="font-semibold text-gray-700 mr-1 whitespace-nowrap">ชื่อผู้แจ้ง:</h4>
+                        <span id="modal-name" class="text-gray-600"></span>
+                    </div>
+                </div>
+                <div class="w-full px-4 py-2 border rounded-lg">
+                    <div class="grid grid-cols-2 flex items-baseline">
+                        <h4 class="font-semibold text-gray-700 mr-1 whitespace-nowrap">ประเภท:</h4>
+                        <span id="modal-mctype" class="text-gray-600"></span>
+                    </div>
+                </div>
+                <div class="w-full px-4 py-2 border rounded-lg">
+                    <div class="grid grid-cols-2 flex items-baseline">
+                        <h4 class="font-semibold text-gray-700 mr-1 whitespace-nowrap">ยี่ห้อ:</h4>
+                        <span id="modal-brand" class="text-gray-600"></span>
+                    </div>
+                </div>
+                <div class="w-full px-4 py-2 border rounded-lg">
+                    <div class="grid grid-cols-3 flex items-baseline">
+                        <h4 class="font-semibold text-gray-700 mr-1 whitespace-nowrap">มิเตอร์:</h4>
+                        <span id="modal-meter" class="flex items-center justify-center text-gray-600"></span>
+                        <span id="modal-unit" class="flex items-center justify-end text-gray-600"></span>
+                    </div>
+                </div>
+
+                <div class="w-full px-4 py-2 border rounded-lg md:col-span-2 lg:col-span-3">
+                    <h4 class="font-semibold text-gray-700 mb-1">รายละเอียดที่แจ้งซ่อม:</h4>
+                    <p id="modal-notes" class="text-gray-600"></p>
+                </div>
+
+                <div class="w-full px-4 py-2 border rounded-lg md:col-span-2 lg:col-span-3">
+                    <h4 class="font-semibold text-gray-700 mb-1">การแก้ไข:</h4>
+                    <span id="modal-solve" class="text-gray-600"></span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 sm:p-0"> <div class="w-full px-4 py-2 border rounded-lg">
+                    <h4 class="font-semibold text-gray-700 mb-1">กำหนดเสร็จ:</h4>
+                    <p class="flex items-center justify-center">
+                      <span id="modal-pdone" class="text-gray-600"></span>
+                    </p>
+                </div>
+                <div class="w-full px-4 py-2 border rounded-lg">
+                    <h4 class="font-semibold text-gray-700 mb-1">แล้วเสร็จจริง:</h4>
+                    <p class="flex items-center justify-center">
+                    <span id="modal-adone" class="text-gray-600"></span>
+                    </p>
+                </div>
+                <div class="w-full px-4 py-2 border rounded-lg">
+                    <h4 class="font-semibold text-gray-700 mb-1">ผู้รับผิดชอบ:</h4>
+                    <p class="flex items-center justify-center">
+                    <span id="modal-responsible" class="text-gray-600"></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <script>
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'Asia/Bangkok'
+            };
+            document.getElementById('datetime').textContent = now.toLocaleString('en-US', options);
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        let allPhotoData = [];
+        let filteredAndSortedData = [];
+        const itemsPerPage = 8;
+        let currentPage = 1;
+        
+        // กำหนดขนาดสูงสุดของภาพที่ต้องการ (ด้านที่ยาวที่สุดจะเป็นค่านี้)
+        const MAX_IMAGE_SIZE = 800; // pixels
+        const JPEG_QUALITY = 0.9; // 0.0 to 1.0
+
+        // Function to resize image before uploading
+        function resizeImage(file, maxSize, quality) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (readerEvent) => {
+                    const image = new Image();
+                    image.onload = (imageEvent) => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+
+                        let width = image.width;
+                        let height = image.height;
+
+                        if (width > height) {
+                            if (width > maxSize) {
+                                height *= maxSize / width;
+                                width = maxSize;
+                            }
+                        } else {
+                            if (height > maxSize) {
+                                width *= maxSize / height;
+                                height = maxSize;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        ctx.drawImage(image, 0, 0, width, height);
+
+                        canvas.toDataURL('image/jpeg', quality).split(',')[1];
+                        resolve(canvas.toDataURL('image/jpeg', quality).split(',')[1]);
+                    };
+                    image.src = readerEvent.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('classroom').value = '';
+            document.getElementById('notes').value = '';
+            document.getElementById('name').value = '';
+            document.getElementById('mctype').value = '';
+            document.getElementById('meter').value = '';
+            document.getElementById('unit').value = '';
+            document.getElementById('brand').value = '';
+            document.getElementById('idtype').value = '';
+            document.getElementById('datalistOptions').value = '';
+            document.getElementById('empid').value = '';
+            document.getElementById('department').value = '';
+            preview1.classList.add('hidden');
+            preview2.classList.add('hidden');
+            uploadArea1.classList.remove('hidden');
+            uploadArea2.classList.remove('hidden');
+            photoUpload1.value = '';
+            photoUpload2.value = '';
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const newReportBtn = document.getElementById('new-report-btn');
+            const newReportForm = document.getElementById('new-report-form');
+            const cancelReportBtn = document.getElementById('cancel-report-btn'); // New cancel button
+
+            const uploadArea1 = document.getElementById('upload-area-1');
+            const uploadArea2 = document.getElementById('upload-area-2');
+            const photoUpload1 = document.getElementById('photo-upload-1');
+            const photoUpload2 = document.getElementById('photo-upload-2');
+            const preview1 = document.getElementById('preview-1');
+            const preview2 = document.getElementById('preview-2');
+            const previewImg1 = document.getElementById('preview-img-1');
+            const previewImg2 = document.getElementById('preview-img-2');
+            const submitBtn = document.getElementById('submit-btn');
+            const photoList = document.getElementById('photo-list');
+            const photoModal = document.getElementById('photo-modal');
+            const closeModal = document.getElementById('close-modal');
+            const paginationControls = document.getElementById('pagination-controls');
+            const statusCards = document.querySelectorAll('.status-card'); // Select all status cards
+
+            // Filter elements
+            const filterStatus = document.getElementById('filter-status');
+            const filterClassroom = document.getElementById('filter-classroom');
+            const filterStartDate = document.getElementById('filter-start-date'); // New
+            const filterEndDate = document.getElementById('filter-end-date'); // New
+            const filterBtn = document.getElementById('filter-btn');
+            const resetFilterBtn = document.getElementById('reset-filter-btn');
+            
+            // Function to fetch and render initial data
+            function fetchDataAndRender() {
+                if (typeof google !== 'undefined-ไม่มีข้อมูล' && google.script && google.script.run) {
+                    google.script.run.withSuccessHandler(function(data) {
+                        allPhotoData = data;
+                        applyFiltersAndSort();
+                        updateStatusSummary(); // Call this after data is loaded and filtered
+                    }).getPhotoData();
+                } else {
+                    console.warn("google.script.run is not available. This script is likely not running within a Google Apps Script web app context. Data will not be loaded.");
+                    allPhotoData = [];
+                    applyFiltersAndSort();
+                    updateStatusSummary(); // Also call if running without GAS
+                }
+            }
+
+            fetchDataAndRender();
+
+            // Handle "แจ้งซ่อมใหม่" button click
+            newReportBtn.addEventListener('click', () => {
+                newReportForm.classList.remove('hidden'); // Show the form
+                newReportBtn.classList.add('hidden'); // Hide the "แจ้งซ่อมใหม่" button
+                resetForm(); // Reset form fields when showing
+            });
+
+            // Handle "ยกเลิก" button click
+            cancelReportBtn.addEventListener('click', () => {
+                newReportForm.classList.add('hidden'); // Hide the form
+                newReportBtn.classList.remove('hidden'); // Show the "แจ้งซ่อมใหม่" button
+                resetForm(); // Reset form fields when hiding
+            });
+
+            // Upload area click handlers (for initial upload)
+            uploadArea1.addEventListener('click', () => photoUpload1.click());
+            uploadArea2.addEventListener('click', () => photoUpload2.click());
+
+            // NEW: Click on preview image to re-upload
+            previewImg1.addEventListener('click', () => photoUpload1.click());
+            previewImg2.addEventListener('click', () => photoUpload2.click());
+
+            // File upload handlers
+            photoUpload1.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImg1.src = e.target.result; // Display full-res preview for user
+                        preview1.classList.remove('hidden'); // Show preview
+                        uploadArea1.classList.add('hidden'); // Hide upload area
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                } else { // If user cancels file selection, revert to upload area
+                    preview1.classList.add('hidden');
+                    uploadArea1.classList.remove('hidden');
+                }
+            });
+            photoUpload2.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImg2.src = e.target.result; // Display full-res preview for user
+                        preview2.classList.remove('hidden'); // Show preview
+                        uploadArea2.classList.add('hidden'); // Hide upload area
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                } else { // If user cancels file selection, revert to upload area
+                    preview2.classList.add('hidden');
+                    uploadArea2.classList.remove('hidden');
+                }
+            });
+            // Submit button handler
+            submitBtn.addEventListener('click', async function() { // Added 'async' keyword here
+                const classroom = document.getElementById('classroom').value;
+                const notes = document.getElementById('notes').value;
+                const mctype = document.getElementById('mctype');
+                const meter = document.getElementById('meter');
+                const unit = document.getElementById('unit');
+                const brand = document.getElementById('brand');
+                const idtype = document.getElementById('idtype');
+                const datalistOptions = document.getElementById('datalistOptions');
+                const empid = document.getElementById('empid');
+                const name = document.getElementById('name').value;
+                const department = document.getElementById('department').value;
+                const status = document.getElementById('status').value;
+                const file1 = photoUpload1.files[0];
+                const file2 = photoUpload2.files[0];
+
+                if (!classroom) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ข้อผิดพลาด',
+                        text: 'กรุณาเลือกสาขา'
+                    });
+                    return;
+                }
+
+                if (!name) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ข้อผิดพลาด',
+                        text: 'กรุณากรอกชื่อ-นามสกุล'
+                    });
+                    return;
+                }
+
+                if (!department) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ข้อผิดพลาด',
+                        text: 'กรุณาเลือกแผนก/ฝ่าย'
+                    });
+                    return;
+                }
+
+                if (!file1 || !file2) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ข้อผิดพลาด',
+                        text: 'กรุณาเพิ่มภาพให้ครบทั้ง 2 ภาพ'
+                    });
+                    return;
+                }
+
+                // แสดง Loading Indicator
+                Swal.fire({
+                    title: 'กำลังบันทึก...',
+                    text: 'กรุณารอสักครู่',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                try {
+                    // Resize images before sending
+                    const resizedPhoto1Base64 = await resizeImage(file1, MAX_IMAGE_SIZE, JPEG_QUALITY);
+                    const resizedPhoto2Base64 = await resizeImage(file2, MAX_IMAGE_SIZE, JPEG_QUALITY);
+
+                    const data = {
+                        classroom: classroom,
+                        notes: notes,
+                        datalistOptions: datalistOptions,
+                        name: name,
+                        department: department,
+                        status: status,
+                        photo1: resizedPhoto1Base64, // Use resized Base64
+                        photo2: resizedPhoto2Base64, // Use resized Base64
+                        date: new Date().toLocaleString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            timeZone: 'Asia/Bangkok'
+                        })
+                    };
+
+                    google.script.run
+                        .withSuccessHandler(function() {
+                            Swal.fire({
+                                title: 'สำเร็จ',
+                                text: 'บันทึกเรียบร้อยแล้ว',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                              }).then((result) => {
+                                if (result.isConfirmed) {
+                                  window.location.replace('https://chaiyong404.github.io/TicketVMC/');
+                                }
+                              });
+
+                            // Hide the form and show the "แจ้งซ่อมใหม่" button again
+                            newReportForm.classList.add('hidden');
+                            newReportBtn.classList.remove('hidden');
+
+                            resetForm(); // Reset form fields
+                            fetchDataAndRender(); // Re-fetch and render all data after new submission
+                        })
+                        .withFailureHandler(function(error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'ข้อผิดพลาด',
+                                text: 'เกิดข้อผิดพลาดในการบันทึก: ' + error
+                            });
+                        })
+                        .savePhotoData(data);
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ข้อผิดพลาด',
+                        text: 'เกิดข้อผิดพลาดในการลดขนาดภาพ: ' + error
+                    });
+                    console.error("Image resize error:", error);
+                }
+            });
+
+            // Function to update status summary cards
+            function updateStatusSummary() {
+                const statusCounts = {
+                    'ทั้งหมด': allPhotoData.length, // Add total count
+                    'ยังไม่รับเรื่อง': 0,
+                    'กำลังดำเนินการ': 0,
+                    'เสร็จสิ้น': 0,
+                    'ยกเลิก': 0
+                };
+                // Use allPhotoData to get total counts across all entries
+                allPhotoData.forEach(entry => {
+                    if (statusCounts.hasOwnProperty(entry.status)) {
+                        statusCounts[entry.status]++;
+                    }
+                });
+
+                document.getElementById('status-ทั้งหมด-count').textContent = statusCounts['ทั้งหมด'];
+                document.getElementById('status-ยังไม่รับเรื่อง-count').textContent = statusCounts['ยังไม่รับเรื่อง'];
+                document.getElementById('status-กำลังดำเนินการ-count').textContent = statusCounts['กำลังดำเนินการ'];
+                document.getElementById('status-เสร็จสิ้น-count').textContent = statusCounts['เสร็จสิ้น'];
+                document.getElementById('status-ยกเลิก-count').textContent = statusCounts['ยกเลิก'];
+            }
+
+            // Function to apply filters and update filteredAndSortedData
+            function applyFiltersAndSort() {
+                let currentData = allPhotoData;
+                const selectedStatus = filterStatus.value;
+                const selectedClassroom = filterClassroom.value;
+                const selectedStartDate = filterStartDate.value; // Get start date
+                const selectedEndDate = filterEndDate.value; // Get end date
+
+                if (selectedStatus) {
+                    currentData = currentData.filter(entry => entry.status === selectedStatus);
+                }
+
+                if (selectedClassroom) {
+                    currentData = currentData.filter(entry => entry.classroom === selectedClassroom);
+                }
+
+                if (selectedStartDate && selectedEndDate) {
+                    const start = new Date(selectedStartDate);
+                    // Set end date to the end of the day for inclusive filtering
+                    const end = new Date(selectedEndDate);
+                    end.setHours(23, 59, 59, 999);
+
+                    currentData = currentData.filter(entry => {
+                        const entryDate = new Date(entry.date);
+                        return entryDate >= start && entryDate <= end;
+                    });
+                } else if (selectedStartDate) { // If only start date is provided, filter from start date onwards
+                    const start = new Date(selectedStartDate);
+                    currentData = currentData.filter(entry => {
+                        const entryDate = new Date(entry.date);
+                        return entryDate >= start;
+                    });
+                } else if (selectedEndDate) { // If only end date is provided, filter up to end date
+                    const end = new Date(selectedEndDate);
+                    end.setHours(23, 59, 59, 999);
+                    currentData = currentData.filter(entry => {
+                        const entryDate = new Date(entry.date);
+                        return entryDate <= end;
+                    });
+                }
+
+                // Sort by date in descending order (latest first)
+                currentData.sort((a, b) => {
+                    const dateA = new Date(a.date);
+                    const dateB = new Date(b.date);
+                    return dateB - dateA; // For descending order
+                });
+
+                filteredAndSortedData = [...currentData];
+                currentPage = 1; // Reset to first page after applying filters/sort
+                renderPhotoList(filteredAndSortedData, currentPage);
+            }
+
+            // Render photo list with pagination
+            function renderPhotoList(dataToDisplay, page) {
+                photoList.innerHTML = '';
+                paginationControls.innerHTML = '';
+
+                const startIndex = (page - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedData = dataToDisplay.slice(startIndex, endIndex);
+
+                if (!paginatedData || paginatedData.length === 0) {
+                    photoList.innerHTML = '<div class="col-span-full text-center py-8 text-gray-500">ไม่มีข้อมูลการแจ้งที่ตรงกับเงื่อนไข</div>';
+                    return;
+                }
+
+                paginatedData.forEach(entry => {
+                    const statusClass = entry.status ? `status-${entry.status.replace(/\s/g, '')}` : '';
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-lg shadow-lg overflow-hidden photo-card';
+                    card.innerHTML = `
+                        <div class="h-48 overflow-hidden cursor-pointer" data-id="${entry.id}"> <img src="${entry.photo1}" alt="แจ้งซ่อม" class="w-full h-full object-cover photo-clickable"> </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg text-sky-800 mb-2">${entry.idtype} : ${entry.listOption}</h3>
+                            <p class="text-sm text-gray-500 mb-3">วันที่แจ้ง : ${entry.date}</p>
+                            <p class="text-sm text-gray-500 mb-3">สถานะ : <span class="status-tag ${statusClass}">${entry.status}</span></p>
+                            <button class="view-details w-full bg-sky-100 hover:bg-sky-200 text-sky-700 font-medium py-2 px-4 rounded-lg transition duration-300" data-id="${entry.id}">
+                                ดูรายละเอียด
+                            </button>
+                        </div>
+                    `;
+                    photoList.appendChild(card);
+                });
+
+                // Render pagination buttons
+                renderPaginationButtons(dataToDisplay.length);
+                // Add event listeners to view details buttons
+                document.querySelectorAll('.view-details').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        openPhotoModal(id);
+                    });
+                });
+                // Add event listeners to clickable photos
+                document.querySelectorAll('.photo-clickable').forEach(img => {
+                    img.closest('div[data-id]').addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        openPhotoModal(id);
+                    });
+                });
+            }
+
+            function openPhotoModal(id) {
+                const entry = allPhotoData.find(item => item.id === id);
+                if (entry) {
+                    document.getElementById('modal-title').textContent = `   วันที่แจ้ง  :   ${entry.date}  -->  ${entry.idtype}  :  ${entry.listOption}`;
+                    document.getElementById('modal-img-1').src = entry.photo1;
+                    document.getElementById('modal-img-2').src = entry.photo2;
+                    document.getElementById('modal-classroom').textContent = entry.classroom;
+                    document.getElementById('modal-notes').textContent = entry.notes;
+                    document.getElementById('modal-mctype').textContent = entry.mctype;
+                    document.getElementById('modal-meter').textContent = entry.meter;
+                    document.getElementById('modal-unit').textContent = entry.unit;
+                    document.getElementById('modal-brand').textContent = entry.brand;
+                    document.getElementById('modal-name').textContent = entry.name || '-';
+                    document.getElementById('modal-solve').textContent = entry.solve || '-';
+                    document.getElementById('modal-responsible').textContent = `${entry.responsible}` || '-';
+                    document.getElementById('modal-pdone').textContent = `${entry.pdone}` || '-';
+                    document.getElementById('modal-adone').textContent = `${entry.adone}` || '-';
+                    const modalStatusSpan = document.getElementById('modal-status');
+                    modalStatusSpan.textContent = entry.status || '-';
+                    modalStatusSpan.className = 'status-tag';
+                    if (entry.status) {
+                        modalStatusSpan.classList.add(`status-${entry.status.replace(/\s/g, '')}`);
+                    }
+
+                    photoModal.classList.remove('hidden');
+                    document.body.classList.add('no-scroll');
+                }
+            }
+
+
+            function renderPaginationButtons(totalItems) {
+                paginationControls.innerHTML = '';
+                const totalPages = Math.ceil(totalItems / itemsPerPage);
+                if (totalPages <= 1) {
+                    return;
+                }
+
+                // Previous button
+                const prevBtn = document.createElement('button');
+                prevBtn.textContent = 'ก่อนหน้า';
+                prevBtn.className = 'pagination-btn';
+                prevBtn.disabled = currentPage === 1;
+                prevBtn.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderPhotoList(filteredAndSortedData, currentPage); // <--- แก้ไขตรงนี้
+                    }
+                });
+                paginationControls.appendChild(prevBtn);
+                // Page number buttons
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.textContent = i;
+                    pageBtn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                    pageBtn.addEventListener('click', () => {
+                        currentPage = i;
+                        renderPhotoList(filteredAndSortedData, currentPage);
+                    });
+                    paginationControls.appendChild(pageBtn);
+                }
+
+                // Next button
+                const nextBtn = document.createElement('button');
+                nextBtn.textContent = 'ถัดไป';
+                nextBtn.className = 'pagination-btn';
+                nextBtn.disabled = currentPage === totalPages;
+                nextBtn.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        renderPhotoList(filteredAndSortedData, currentPage); // <--- แก้ไขตรงนี้
+                    }
+                });
+                paginationControls.appendChild(nextBtn);
+            }
+
+            // Filter logic
+            filterBtn.addEventListener('click', applyFiltersAndSort);
+            // Reset filter
+            resetFilterBtn.addEventListener('click', function() {
+                filterStatus.value = '';
+                filterClassroom.value = '';
+                filterStartDate.value = ''; // Reset new date inputs
+                filterEndDate.value = '';   // Reset new date inputs
+                applyFiltersAndSort();
+            });
+            // Add event listeners to status summary cards
+            statusCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const statusToFilter = this.getAttribute('data-status');
+                    filterStatus.value = statusToFilter; // Set the filter dropdown
+                    filterClassroom.value = ''; // Clear other filters
+                    filterStartDate.value = ''; // Clear other date filters
+                    filterEndDate.value = '';   // Clear other date filters
+                    applyFiltersAndSort(); // Apply the filter
+                });
+            });
+            // Close modal
+            closeModal.addEventListener('click', function() {
+                photoModal.classList.add('hidden');
+                document.body.classList.remove('no-scroll');
+            });
+            // Close modal when clicking outside
+            photoModal.addEventListener('click', function(e) {
+                if (e.target === photoModal) {
+                    photoModal.classList.add('hidden');
+                    document.body.classList.remove('no-scroll');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
